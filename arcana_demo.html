@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcana — Decision Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0C0C0F;--surface:#131318;--raised:#1A1A22;--border:#242430;
+  --gold:#C9A96E;--gold-dim:rgba(201,169,110,0.1);--gold-border:rgba(201,169,110,0.25);
+  --blue:#4F8EF7;--blue-dim:rgba(79,142,247,0.1);--blue-border:rgba(79,142,247,0.25);
+  --green:#34D399;--green-dim:rgba(52,211,153,0.1);--green-border:rgba(52,211,153,0.25);
+  --red:#F87171;--red-dim:rgba(248,113,113,0.1);
+  --text:#F1F0EC;--text-mid:#9B9A94;--text-dim:#4A4A52;
+  --sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;}
+.logo{font-size:17px;font-weight:700;letter-spacing:-0.04em;color:var(--gold);}
+.logo-sub{font-size:11px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-left:2px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);}
+.run-btn{padding:7px 18px;border-radius:6px;background:var(--gold);color:#0C0C0F;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity 0.15s;}
+.run-btn:hover{opacity:0.88;}
+.run-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+.main{flex:1;display:flex;overflow:hidden;}
+
+/* LEFT PANEL */
+.left-panel{width:320px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.lp-header{padding:16px 18px;border-bottom:1px solid var(--border);}
+.lp-title{font-size:12px;font-weight:700;color:var(--text-mid);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;}
+.decision-input{width:100%;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;resize:none;line-height:1.6;min-height:80px;}
+.decision-input:focus{border-color:var(--gold-border);}
+.context-row{display:flex;gap:8px;margin-top:8px;}
+.ctx-tag{font-size:10px;font-weight:600;padding:4px 9px;border-radius:4px;background:var(--raised);border:1px solid var(--border);color:var(--text-mid);cursor:pointer;transition:all 0.12s;}
+.ctx-tag.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold);}
+
+/* STAGES */
+.stages{flex:1;overflow-y:auto;padding:12px;}
+.stage{background:var(--raised);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color 0.2s;}
+.stage.active{border-color:var(--gold-border);}
+.stage.done{border-color:var(--green-border);}
+.stage-header{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;}
+.stage-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:var(--border);color:var(--text-dim);flex-shrink:0;}
+.stage.active .stage-num{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);}
+.stage.done .stage-num{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
+.stage-name{font-size:11px;font-weight:700;flex:1;}
+.stage-status{font-size:10px;font-weight:600;color:var(--text-dim);}
+.stage.active .stage-status{color:var(--gold);}
+.stage.done .stage-status{color:var(--green);}
+.stage-body{padding:0 12px;max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.2s;}
+.stage.open .stage-body{max-height:200px;padding:0 12px 12px;}
+.stage-desc{font-size:11px;color:var(--text-mid);line-height:1.6;}
+
+/* CENTER — OUTPUT */
+.center{flex:1;overflow-y:auto;padding:24px;}
+.output-header{font-size:18px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px;}
+.output-sub{font-size:12px;color:var(--text-dim);margin-bottom:24px;}
+.output-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;}
+.oc-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.oc-title{font-size:12px;font-weight:700;}
+.oc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.oc-body{padding:14px 16px;font-size:12px;color:var(--text-mid);line-height:1.7;}
+.oc-body strong{color:var(--text);}
+.source-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--blue);margin:2px;}
+.blind-spot{background:var(--red-dim);border-left:3px solid var(--red);padding:10px 12px;border-radius:0 6px 6px 0;margin-bottom:8px;font-size:12px;color:var(--text-mid);}
+.blind-spot strong{color:var(--red);}
+
+/* RIGHT PANEL */
+.right-panel{width:260px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.rp-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.rp-label{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.metric-row:last-child{border-bottom:none;}
+.metric-val{font-family:var(--mono);font-weight:700;}
+.audit-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-mid);}
+.audit-item:last-child{border-bottom:none;}
+.audit-item strong{color:var(--text);display:block;margin-bottom:2px;}
+
+.statusbar{height:24px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:16px;flex-shrink:0;}
+.sb{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.demo-note{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(19,19,24,0.95);border:1px solid var(--border);color:var(--text-dim);border-radius:20px;padding:5px 14px;font-size:10px;z-index:200;white-space:nowrap;pointer-events:none;}
+.demo-note strong{color:var(--gold);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.pulse{animation:pulse 1.5s ease-in-out infinite;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">arcana<span class="logo-sub"> · decision intelligence</span></div>
+  <div class="topbar-right">
+    <div class="badge">Private Beta</div>
+    <button class="run-btn" id="runBtn" onclick="runDecision()">Run Decision Analysis</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: INPUT + STAGES -->
+  <div class="left-panel">
+    <div class="lp-header">
+      <div class="lp-title">Decision Input</div>
+      <textarea class="decision-input" id="decisionInput">Should we expand into the US market in Q1 2025, given our current $2M ARR, 18-month runway, and Series A closing in 6 weeks?</textarea>
+      <div class="context-row">
+        <div class="ctx-tag active" onclick="toggleTag(this)">SMB</div>
+        <div class="ctx-tag" onclick="toggleTag(this)">High Stakes</div>
+        <div class="ctx-tag" onclick="toggleTag(this)">Time-Sensitive</div>
+      </div>
+    </div>
+    <div class="stages" id="stagesList">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">6-Stage Protocol</div>
+      <div class="stage" id="s1" onclick="toggleStage('s1')">
+        <div class="stage-header"><div class="stage-num">1</div><div class="stage-name">Frame the Decision</div><div class="stage-status" id="ss1">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Define the decision precisely, identify who owns it, set the time horizon, and surface assumptions baked into the framing.</div></div>
+      </div>
+      <div class="stage" id="s2" onclick="toggleStage('s2')">
+        <div class="stage-header"><div class="stage-num">2</div><div class="stage-name">Gather Evidence</div><div class="stage-status" id="ss2">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Pull relevant data, precedents, and external signals from connected sources. Tag every claim to its origin for the audit trail.</div></div>
+      </div>
+      <div class="stage" id="s3" onclick="toggleStage('s3')">
+        <div class="stage-header"><div class="stage-num">3</div><div class="stage-name">Challenge Assumptions</div><div class="stage-status" id="ss3">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Stress-test the decision against adversarial perspectives. Surface blind spots and pre-mortems that the proposer may not have considered.</div></div>
+      </div>
+      <div class="stage" id="s4" onclick="toggleStage('s4')">
+        <div class="stage-header"><div class="stage-num">4</div><div class="stage-name">Model Scenarios</div><div class="stage-status" id="ss4">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Generate best-case, base-case, and worst-case scenarios with probability weighting and key driver analysis.</div></div>
+      </div>
+      <div class="stage" id="s5" onclick="toggleStage('s5')">
+        <div class="stage-header"><div class="stage-num">5</div><div class="stage-name">Evaluate Options</div><div class="stage-status" id="ss5">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Score each option against weighted criteria. Surface tradeoffs and second-order consequences of each path.</div></div>
+      </div>
+      <div class="stage" id="s6" onclick="toggleStage('s6')">
+        <div class="stage-header"><div class="stage-num">6</div><div class="stage-name">Produce Recommendation</div><div class="stage-status" id="ss6">Pending</div></div>
+        <div class="stage-body"><div class="stage-desc">Generate an auditable, source-tagged recommendation with confidence rating, key risks, and decision reversibility score.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: OUTPUT -->
+  <div class="center" id="outputArea">
+    <div class="output-header">Decision Analysis</div>
+    <div class="output-sub" id="outputSub">Submit a decision to begin the 6-stage structured analysis protocol.</div>
+    <div id="outputCards">
+      <div style="text-align:center;padding:60px 0;color:var(--text-dim)">
+        <div style="font-size:32px;margin-bottom:12px">⚖️</div>
+        <div style="font-size:13px">Run a decision analysis to see structured outputs,<br>blind spot detection, and source-tagged recommendations.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: AUDIT + METRICS -->
+  <div class="right-panel">
+    <div class="rp-section">
+      <div class="rp-label">Run Metrics</div>
+      <div class="metric-row"><span style="color:var(--text-mid)">Decision score</span><span class="metric-val" id="mScore" style="color:var(--text-dim)">—</span></div>
+      <div class="metric-row"><span style="color:var(--text-mid)">Confidence</span><span class="metric-val" id="mConf" style="color:var(--text-dim)">—</span></div>
+      <div class="metric-row"><span style="color:var(--text-mid)">Blind spots</span><span class="metric-val" id="mBlinds" style="color:var(--text-dim)">—</span></div>
+      <div class="metric-row"><span style="color:var(--text-mid)">Sources cited</span><span class="metric-val" id="mSources" style="color:var(--text-dim)">—</span></div>
+      <div class="metric-row"><span style="color:var(--text-mid)">Reversibility</span><span class="metric-val" id="mRev" style="color:var(--text-dim)">—</span></div>
+    </div>
+    <div class="rp-section" style="flex:1">
+      <div class="rp-label">Audit Trail</div>
+      <div id="auditLog">
+        <div style="font-size:11px;color:var(--text-dim)">No run yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="statusbar">
+  <div class="sb" id="sbLeft">● Arcana Decision Intelligence · Private Beta</div>
+  <div class="sb">Claude API · FastAPI · PostgreSQL · Redis</div>
+  <div class="sb" style="margin-left:auto">Built by Jaivik Parekh · jaivikparekh1320@gmail.com</div>
+</div>
+
+<div class="demo-note">Built for <strong>Arcana</strong> by <strong>Jaivik Parekh</strong> · demonstrating FastAPI, async, RAG, Claude API, PostgreSQL, Redis</div>
+
+<script>
+var running = false;
+
+function toggleTag(el) {
+  el.classList.toggle('active');
+}
+
+function toggleStage(id) {
+  var s = document.getElementById(id);
+  s.classList.toggle('open');
+}
+
+function setStage(n, state) {
+  var s = document.getElementById('s'+n);
+  var ss = document.getElementById('ss'+n);
+  s.classList.remove('active','done','open');
+  if(state==='active'){s.classList.add('active','open');ss.textContent='Running...';}
+  else if(state==='done'){s.classList.add('done');ss.textContent='Complete';}
+  else{ss.textContent='Pending';}
+}
+
+function addAudit(text) {
+  var log = document.getElementById('auditLog');
+  if(log.querySelector('div[style]')) log.innerHTML = '';
+  var t = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var div = document.createElement('div');
+  div.className = 'audit-item';
+  div.innerHTML = '<strong>'+t+'</strong>'+text;
+  log.appendChild(div);
+}
+
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+async function runDecision() {
+  if(running) return;
+  running = true;
+  var btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  document.getElementById('outputSub').textContent = 'Running 6-stage structured decision protocol...';
+  document.getElementById('outputCards').innerHTML = '';
+  document.getElementById('auditLog').innerHTML = '';
+  document.getElementById('mScore').textContent = '—'; document.getElementById('mScore').style.color = 'var(--text-dim)';
+  document.getElementById('mConf').textContent = '—';
+  document.getElementById('mBlinds').textContent = '—';
+  document.getElementById('mSources').textContent = '—';
+  document.getElementById('mRev').textContent = '—';
+
+  for(var i=1;i<=6;i++) setStage(i,'pending');
+
+  // Stage 1
+  setStage(1,'active');
+  addAudit('Stage 1 started — framing decision context');
+  await sleep(1400);
+  setStage(1,'done');
+  addAudit('Decision framed — owner: CEO, horizon: 6mo, type: Partially reversible');
+  addCard('Stage 1 — Frame the Decision','COMPLETE',
+    '<strong>Decision Owner:</strong> CEO / Founding team<br><strong>Time Horizon:</strong> 6 months to initial market entry<br><strong>Decision Type:</strong> Partially reversible (high setup cost, extractable if needed)<br><strong>Core Question:</strong> Does the current financial position support the runway risk of US expansion before Series A close?<br><strong>Key Assumption Identified:</strong> That Series A closes on schedule.',
+    'var(--gold)','var(--gold-dim)'
+  );
+
+  // Stage 2
+  setStage(2,'active');
+  addAudit('Stage 2 started — gathering evidence via RAG pipeline');
+  await sleep(1600);
+  setStage(2,'done');
+  addAudit('Evidence gathered — 8 sources retrieved and tagged');
+  addCard('Stage 2 — Evidence Gathered','8 SOURCES',
+    '<strong>Source-tagged claims:</strong><br>'+
+    '<span class="source-tag">CBInsights 2024</span> US SaaS expansion average cost: $180K–$400K first year<br>'+
+    '<span class="source-tag">Stripe Atlas</span> Delaware C-Corp setup: 2–4 weeks, $500–$2K<br>'+
+    '<span class="source-tag">Bessemer SaaS</span> $2M ARR entering US: 60th percentile timing<br>'+
+    '<span class="source-tag">Internal</span> 18-month runway at current burn<br>'+
+    '<span class="source-tag">Crunchbase</span> Series A median close time: 4.2 months from term sheet',
+    'var(--blue)','var(--blue-dim)'
+  );
+
+  // Stage 3
+  setStage(3,'active');
+  addAudit('Stage 3 started — adversarial challenge and blind spot detection');
+  await sleep(1500);
+  setStage(3,'done');
+  addAudit('3 blind spots surfaced — runway risk flagged HIGH');
+  document.getElementById('mBlinds').textContent = '3';
+  document.getElementById('mBlinds').style.color = 'var(--red)';
+  addBlindSpotsCard();
+
+  // Stage 4
+  setStage(4,'active');
+  addAudit('Stage 4 started — scenario modelling');
+  await sleep(1400);
+  setStage(4,'done');
+  addAudit('3 scenarios modelled with probability weighting');
+  addCard('Stage 4 — Scenario Models','3 SCENARIOS',
+    '<strong>Best Case (25%):</strong> Series A closes in 5 weeks, US traction within 90 days, adds $400K ARR by Q3. Runway extends to 26 months.<br><br>'+
+    '<strong>Base Case (55%):</strong> Series A closes at 8 weeks, US expansion costs $220K, 5-month sales cycle. Runway tightens to 11 months at risk.<br><br>'+
+    '<strong>Worst Case (20%):</strong> Series A delayed 12+ weeks. US burn accelerates. Runway drops to 7 months. Requires bridge or aggressive cuts.',
+    'var(--text-mid)','var(--raised)'
+  );
+
+  // Stage 5
+  setStage(5,'active');
+  addAudit('Stage 5 started — evaluating options against weighted criteria');
+  await sleep(1300);
+  setStage(5,'done');
+  addAudit('3 options scored — conditional expansion ranked highest');
+  addCard('Stage 5 — Option Evaluation','RANKED',
+    '<strong>Option A: Full US Launch Q1 (Score: 61/100)</strong> — High upside, high runway risk. Only viable if Series A closes first.<br><br>'+
+    '<strong>Option B: Conditional Launch (Score: 78/100)</strong> — Launch only after Series A close confirmed. Delays by 6–8 weeks but eliminates existential risk. <em>Recommended path.</em><br><br>'+
+    '<strong>Option C: Defer to Q3 (Score: 54/100)</strong> — Safest runway position but loses first-mover timing advantage in target segment.',
+    'var(--green)','var(--green-dim)'
+  );
+
+  // Stage 6
+  setStage(6,'active');
+  addAudit('Stage 6 started — generating auditable recommendation');
+  await sleep(1500);
+  setStage(6,'done');
+  addAudit('Recommendation produced — confidence 74%, reversibility LOW-MED');
+
+  document.getElementById('mScore').textContent = '78/100'; document.getElementById('mScore').style.color = 'var(--green)';
+  document.getElementById('mConf').textContent = '74%'; document.getElementById('mConf').style.color = 'var(--gold)';
+  document.getElementById('mSources').textContent = '8'; document.getElementById('mSources').style.color = 'var(--blue)';
+  document.getElementById('mRev').textContent = 'Low-Med'; document.getElementById('mRev').style.color = 'var(--gold)';
+
+  addCard('Stage 6 — Recommendation','AUDITABLE',
+    '<strong>Recommendation: Conditional US Expansion</strong> — Proceed with US market preparation now (legal entity, initial GTM research, pilot outreach) but hold full launch commitment until Series A close is confirmed.<br><br>'+
+    '<strong>Confidence: 74%</strong> — Primary uncertainty is Series A timing. This recommendation degrades to "Defer" if close slips beyond 10 weeks.<br><br>'+
+    '<strong>Key risks:</strong> Runway compression, sales cycle underestimation, founder bandwidth split.<br><br>'+
+    '<strong>Decision reversibility:</strong> Low-Medium — Setup costs (~$30K) are sunk, but full expansion commitment is not yet locked.',
+    'var(--gold)','var(--gold-dim)'
+  );
+
+  document.getElementById('outputSub').textContent = 'Analysis complete · 6 stages · 8 sources · 3 blind spots surfaced · auditable output produced';
+  document.getElementById('sbLeft').textContent = '✓ Decision analysis complete · Confidence 74% · 8 sources cited';
+  btn.disabled = false;
+  btn.textContent = 'Run Again';
+  running = false;
+}
+
+function addCard(title, badge, body, badgeColor, badgeBg) {
+  var c = document.createElement('div');
+  c.className = 'output-card';
+  c.style.animation = 'fadeIn 0.2s ease';
+  c.innerHTML = '<div class="oc-header"><div class="oc-title">'+title+'</div><div class="oc-badge" style="background:'+badgeBg+';color:'+badgeColor+'">'+badge+'</div></div><div class="oc-body">'+body+'</div>';
+  document.getElementById('outputCards').appendChild(c);
+  c.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function addBlindSpotsCard() {
+  var c = document.createElement('div');
+  c.className = 'output-card';
+  c.innerHTML = '<div class="oc-header"><div class="oc-title">Stage 3 — Blind Spots Detected</div><div class="oc-badge" style="background:var(--red-dim);color:var(--red)">3 FOUND</div></div><div class="oc-body">'+
+    '<div class="blind-spot"><strong>Blind Spot 1 — Series A Dependency:</strong> The entire expansion thesis assumes the raise closes on schedule. A 6-week delay cuts runway to 12 months — below most investor comfort thresholds for follow-on.</div>'+
+    '<div class="blind-spot"><strong>Blind Spot 2 — US Sales Cycle Underestimation:</strong> B2B SaaS into US SMB averages 90–120 day cycles. At $2M ARR, no brand recognition will extend this further. First revenue unlikely before month 6.</div>'+
+    '<div class="blind-spot"><strong>Blind Spot 3 — Founder Bandwidth:</strong> A solo or small founding team running Series A + US expansion simultaneously is a known failure mode. No mitigation plan identified in the current framing.</div>'+
+    '</div>';
+  document.getElementById('outputCards').appendChild(c);
+  c.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
